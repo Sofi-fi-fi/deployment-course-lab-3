@@ -6,8 +6,9 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.Sources.Clear();
+var configPath = Environment.GetEnvironmentVariable("APP_CONFIG_PATH") ?? "/etc/mywebapp/config.json";
 builder.Configuration
-    .AddJsonFile("/etc/mywebapp/config.json", optional: false, reloadOnChange: false);
+    .AddJsonFile(configPath, optional: false, reloadOnChange: false);
 
 var iface = builder.Configuration["App:Interface"]
     ?? throw new InvalidOperationException(
@@ -23,8 +24,17 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
     ?? throw new InvalidOperationException(
         "Connection string 'DefaultConnection' is missing in /etc/mywebapp/config.json");
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
+var useInMemory = Environment.GetEnvironmentVariable("USE_INMEMORY_DB") == "true";
+if (useInMemory)
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseInMemoryDatabase("TestDatabase"));
+}
+else
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseNpgsql(connectionString));
+}
 
 var app = builder.Build();
 
@@ -33,3 +43,4 @@ app.MapRootEndpoints();
 app.MapHealthEndpoints();
 
 app.Run();
+public partial class Program { }
