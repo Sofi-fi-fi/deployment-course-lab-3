@@ -1,0 +1,9 @@
+{
+  "App": {
+    "Interface": "0.0.0.0",
+    "Port": "8000"
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=db;Port=5432;Database=mywebapp;Username=mywebapp;Password=mywebapp"
+  }
+}
