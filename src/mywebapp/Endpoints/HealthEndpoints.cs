@@ -4,12 +4,12 @@ namespace mywebapp.Endpoints;
 
 public static class HealthEndpoints
 {
-public static IEndpointRouteBuilder MapHealthEndpoints(this IEndpointRouteBuilder app)
-	{
-		app.MapGet("/health/alive", () => Results.Text("OK", "text/plain"))
-			.WithName("HealthAlive");
+    public static IEndpointRouteBuilder MapHealthEndpoints(this IEndpointRouteBuilder app)
+    {
+        app.MapGet("/health/alive", () => Results.Text("OK", "text/plain"))
+            .WithName("HealthAlive");
 
-		app.MapGet("/health/ready", async (AppDbContext db) =>
+        app.MapGet("/health/ready", async (AppDbContext db) =>
         {
             try
             {
@@ -24,7 +24,7 @@ public static IEndpointRouteBuilder MapHealthEndpoints(this IEndpointRouteBuilde
                     statusCode: 500);
             }
         }).WithName("HealthReady");
-		
-		return app;
-	}
+
+        return app;
+    }
 }

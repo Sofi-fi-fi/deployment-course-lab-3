@@ -7,28 +7,28 @@ namespace mywebapp.Endpoints;
 
 public static class TaskEndpoints
 {
-	private record CreateTaskRequest(string Title);
-	
-	public static IEndpointRouteBuilder MapTaskEndpoints(this IEndpointRouteBuilder app) 
-	{
-		app.MapGet("/tasks", async (HttpRequest request, AppDbContext db) => 
-		{
-			var tasks = await db.Tasks
-				.Select(t => new 
-				{
-					t.Id,
-					t.Title,
-					t.Status,
-					t.Created_At
-				})
-				.ToListAsync();
+    private record CreateTaskRequest(string Title);
 
-			var accepts = request.GetTypedHeaders().Accept
-				.Any(h => h.MediaType.Value == "text/html");
+    public static IEndpointRouteBuilder MapTaskEndpoints(this IEndpointRouteBuilder app)
+    {
+        app.MapGet("/tasks", async (HttpRequest request, AppDbContext db) =>
+        {
+            var tasks = await db.Tasks
+                .Select(t => new
+                {
+                    t.Id,
+                    t.Title,
+                    t.Status,
+                    t.Created_At
+                })
+                .ToListAsync();
 
-			if (accepts)
-			{
-				var rows = string.Join("", tasks.Select(t => $"""
+            var accepts = request.GetTypedHeaders().Accept
+                .Any(h => h.MediaType.Value == "text/html");
+
+            if (accepts)
+            {
+                var rows = string.Join("", tasks.Select(t => $"""
 					<tr>
 						<td>{t.Id}</td>
 						<td>{t.Title}</td>
@@ -37,7 +37,7 @@ public static class TaskEndpoints
 					</tr>
 				"""));
 
-				var html = $"""
+                var html = $"""
 					<html>
 					<body>
 						<h1>Tasks</h1>
@@ -57,41 +57,41 @@ public static class TaskEndpoints
 					</body>
 					</html>
 					""";
-				return Results.Content(html, "text/html; charset=utf-8");
-			}
+                return Results.Content(html, "text/html; charset=utf-8");
+            }
 
-			return Results.Ok(tasks);
-		});
-		
-		app.MapPost("/tasks", async (HttpRequest request, [FromBody] CreateTaskRequest body, AppDbContext db) => 
-		{
-			if (string.IsNullOrWhiteSpace(body.Title))
-			{
-				var accept = request.GetTypedHeaders().Accept
-					.Any(h => h.MediaType.Value == "text/html");
+            return Results.Ok(tasks);
+        });
 
-				if (accept)
-					return Results.Content("<html><body><p>Error: Title is required</p></body></html>", "text/html; charset=utf-8", statusCode: StatusCodes.Status400BadRequest);
+        app.MapPost("/tasks", async (HttpRequest request, [FromBody] CreateTaskRequest body, AppDbContext db) =>
+        {
+            if (string.IsNullOrWhiteSpace(body.Title))
+            {
+                var accept = request.GetTypedHeaders().Accept
+                    .Any(h => h.MediaType.Value == "text/html");
 
-				return Results.BadRequest(new { error = "Title is required" });
-			}
+                if (accept)
+                    return Results.Content("<html><body><p>Error: Title is required</p></body></html>", "text/html; charset=utf-8", statusCode: StatusCodes.Status400BadRequest);
 
-			var task = new TaskEntity
-			{
-				Title = body.Title,
-				Status = "pending",
-				Created_At = DateTime.UtcNow
-			};
+                return Results.BadRequest(new { error = "Title is required" });
+            }
 
-			db.Tasks.Add(task);
-			await db.SaveChangesAsync();
+            var task = new TaskEntity
+            {
+                Title = body.Title,
+                Status = "pending",
+                Created_At = DateTime.UtcNow
+            };
 
-			var accepts = request.GetTypedHeaders().Accept
-				.Any(h => h.MediaType.Value == "text/html");
+            db.Tasks.Add(task);
+            await db.SaveChangesAsync();
 
-			if (accepts)
-			{
-				var html = $"""
+            var accepts = request.GetTypedHeaders().Accept
+                .Any(h => h.MediaType.Value == "text/html");
+
+            if (accepts)
+            {
+                var html = $"""
 					<html>
 					<body>
 						<h1>Task Created</h1>
@@ -104,41 +104,41 @@ public static class TaskEndpoints
 					</body>
 					</html>
 					""";
-				return Results.Content(html, "text/html", statusCode: StatusCodes.Status201Created);
-			}
+                return Results.Content(html, "text/html", statusCode: StatusCodes.Status201Created);
+            }
 
-			return Results.Created($"/tasks/{task.Id}", new 
-			{
-				id = task.Id,
-				title = task.Title,
-				status  = task.Status,
-				created_at = task.Created_At
-			}); 
-		});
+            return Results.Created($"/tasks/{task.Id}", new
+            {
+                id = task.Id,
+                title = task.Title,
+                status = task.Status,
+                created_at = task.Created_At
+            });
+        });
 
-		app.MapPost("/tasks/{id}/done", async (HttpRequest request, int id, AppDbContext db) => 
-		{
-			var task = await db.Tasks.FindAsync(id);
-			if (task is null)
-			{
-				var accept = request.GetTypedHeaders().Accept
-					.Any(h => h.MediaType.Value == "text/html");
+        app.MapPost("/tasks/{id}/done", async (HttpRequest request, int id, AppDbContext db) =>
+        {
+            var task = await db.Tasks.FindAsync(id);
+            if (task is null)
+            {
+                var accept = request.GetTypedHeaders().Accept
+                    .Any(h => h.MediaType.Value == "text/html");
 
-				if (accept)
-					return Results.Content("<html><body><p>Error: Task not found</p></body></html>", "text/html", statusCode: StatusCodes.Status404NotFound);
+                if (accept)
+                    return Results.Content("<html><body><p>Error: Task not found</p></body></html>", "text/html", statusCode: StatusCodes.Status404NotFound);
 
-				return Results.NotFound(new { error = "Task not found" });
-			}
+                return Results.NotFound(new { error = "Task not found" });
+            }
 
-			task.Status = "done";
-			await db.SaveChangesAsync();
+            task.Status = "done";
+            await db.SaveChangesAsync();
 
-			var accepts = request.GetTypedHeaders().Accept
-				.Any(h => h.MediaType.Value == "text/html");
+            var accepts = request.GetTypedHeaders().Accept
+                .Any(h => h.MediaType.Value == "text/html");
 
-			if (accepts)
-			{
-				var html = $"""
+            if (accepts)
+            {
+                var html = $"""
 					<html>
 					<body>
 						<h1>Task Updated</h1>
@@ -151,17 +151,17 @@ public static class TaskEndpoints
 					</body>
 					</html>
 					""";
-				return Results.Content(html, "text/html");
-			}
+                return Results.Content(html, "text/html");
+            }
 
-			return Results.Ok(new 
-			{
-				id = task.Id,
-				title = task.Title,
-				status  = task.Status,
-				created_at = task.Created_At
-			});
-		});
-		return app;
-	}
+            return Results.Ok(new
+            {
+                id = task.Id,
+                title = task.Title,
+                status = task.Status,
+                created_at = task.Created_At
+            });
+        });
+        return app;
+    }
 }

@@ -4,19 +4,19 @@ namespace mywebapp.Endpoints;
 
 public static class RootEndpoints
 {
-	public static IEndpointRouteBuilder MapRootEndpoints(this IEndpointRouteBuilder app) 
-	{
-		app.MapGet("/", (HttpRequest request) => 
-		{
-			var accepts  = request.GetTypedHeaders().Accept;
-			var acceptsHtml = accepts.Any(h => h.MediaType.Value == "text/html");
+    public static IEndpointRouteBuilder MapRootEndpoints(this IEndpointRouteBuilder app)
+    {
+        app.MapGet("/", (HttpRequest request) =>
+        {
+            var accepts = request.GetTypedHeaders().Accept;
+            var acceptsHtml = accepts.Any(h => h.MediaType.Value == "text/html");
 
-			if (!acceptsHtml)
-			{
-				return Results.StatusCode(StatusCodes.Status406NotAcceptable);
-			}
+            if (!acceptsHtml)
+            {
+                return Results.StatusCode(StatusCodes.Status406NotAcceptable);
+            }
 
-			var html = """
+            var html = """
 				<html>
 				<body>
 					<h1>API Endpoints</h1>
@@ -49,8 +49,8 @@ public static class RootEndpoints
 				</body>
 				</html>
 				""";
-			return Results.Content(html, "text/html; charset=utf-8");
-		});
-		return app;
-	}
+            return Results.Content(html, "text/html; charset=utf-8");
+        });
+        return app;
+    }
 }
