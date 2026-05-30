@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: mywebapp
       POSTGRES_PASSWORD: mywebapp
     volumes:
-      - pgdata:/var/lib/postgresql/data      
+      - pgdata:/var/lib/postgresql/data
       - ./migrations/001_init.sql:/docker-entrypoint-initdb.d/001_init.sql:ro
     networks:
       - task_network

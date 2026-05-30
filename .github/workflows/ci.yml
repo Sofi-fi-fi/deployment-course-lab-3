@@ -75,7 +75,7 @@ jobs:
       - name: Generate JSON coverage report
         run: |
           reportgenerator \
-            -reports:./coverage/coverage.xml \
+            -reports:src/mywebapp.Tests/coverage/coverage.xml \
             -targetdir:./coverage/report \
             -reporttypes:JsonSummary
 
