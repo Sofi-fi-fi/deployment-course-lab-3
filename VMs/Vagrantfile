@@ -1,0 +1,35 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "bento/ubuntu-24.04"
+  config.vm.boot_timeout = 600
+
+  config.vm.define "runner" do |runner|
+    runner.vm.hostname = "runner"
+    runner.vm.network "private_network", ip: "192.168.56.10"
+
+    runner.vm.provider "virtualbox" do |vb|
+      vb.name   = "lab3-runner"
+      vb.cpus   = 1
+      vb.memory = 1024
+    end
+
+    runner.vm.provision "shell",
+      path: "../scripts/setup-runner.sh",
+      privileged: false
+  end
+
+  config.vm.define "target" do |target|
+    target.vm.hostname = "target"
+    target.vm.network "private_network", ip: "192.168.56.20"
+    target.vm.network "forwarded_port", guest: 80, host: 8080
+
+    target.vm.provider "virtualbox" do |vb|
+      vb.name   = "lab3-target"
+      vb.cpus   = 1
+      vb.memory = 1024
+    end
+
+    target.vm.provision "shell",
+      path: "../scripts/setup-target.sh",
+      privileged: true
+  end
+end
