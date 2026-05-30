@@ -124,3 +124,57 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  deploy:
+    name: Deploy
+    runs-on: [self-hosted, lab3]
+    needs: [build]
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/lab3_deploy
+          chmod 600 ~/.ssh/lab3_deploy
+
+      - name: Pull new image on target
+        run: |
+          ssh -i ~/.ssh/lab3_deploy \
+              -o StrictHostKeyChecking=no \
+              deploy@${{ secrets.TARGET_HOST }} \
+              "docker pull ghcr.io/${{ github.repository }}:${{ github.ref_name }}"
+
+      - name: Update systemd unit with new tag
+        run: |
+          ssh -i ~/.ssh/lab3_deploy \
+              -o StrictHostKeyChecking=no \
+              deploy@${{ secrets.TARGET_HOST }} \
+              "sudo sed -i 's|:.*$|:${{ github.ref_name }}|' /etc/systemd/system/mywebapp.service \
+               && sudo systemctl daemon-reload \
+               && sudo systemctl restart mywebapp.service"
+
+      - name: Wait for app to start
+        run: sleep 15
+
+  verify:
+    name: Verify
+    runs-on: [self-hosted, lab3]
+    needs: [deploy]
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run verification script
+        run: |
+          chmod +x scripts/verify.sh
+          bash scripts/verify.sh ${{ secrets.TARGET_HOST }}
+
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f ~/.ssh/lab3_deploy
