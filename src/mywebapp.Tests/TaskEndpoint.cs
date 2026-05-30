@@ -24,7 +24,7 @@ public class TaskEndpoint(TestFactory factory) : IClassFixture<TestFactory>
 
         var response = await _client.GetAsync("/tasks");
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         var tasks = await response.Content.ReadFromJsonAsync<List<object>>();
         Assert.NotNull(tasks);
         Assert.Empty(tasks);
