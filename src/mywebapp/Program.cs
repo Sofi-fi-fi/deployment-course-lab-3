@@ -45,11 +45,11 @@ app.MapHealthEndpoints();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    
+
     try
     {
         var context = services.GetRequiredService<AppDbContext>();
-        context.Database.EnsureCreated();         
+        context.Database.EnsureCreated();
     }
     catch (Exception ex)
     {
