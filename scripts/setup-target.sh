@@ -83,6 +83,16 @@ if ! id -u deploy &>/dev/null; then
     usermod -aG docker deploy
 fi
 
+echo "==> Configuring passwordless sudo for deploy user..."
+cat > /etc/sudoers.d/deploy << 'EOF'
+deploy ALL=(ALL) NOPASSWD: /bin/systemctl daemon-reload, \
+                           /bin/systemctl restart mywebapp.service, \
+                           /bin/systemctl stop mywebapp.service, \
+                           /bin/systemctl start mywebapp.service, \
+                           /bin/sed -i * /etc/systemd/system/mywebapp.service
+EOF
+chmod 440 /etc/sudoers.d/deploy
+
 mkdir -p /home/deploy/.ssh
 chmod 700 /home/deploy/.ssh
 touch /home/deploy/.ssh/authorized_keys
