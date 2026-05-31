@@ -42,5 +42,20 @@ app.MapTaskEndpoints();
 app.MapRootEndpoints();
 app.MapHealthEndpoints();
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        context.Database.EnsureCreated();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"An error occurred creating the DB: {ex.Message}");
+    }
+}
+
 app.Run();
 public partial class Program { }
