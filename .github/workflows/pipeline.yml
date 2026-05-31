@@ -146,7 +146,7 @@ jobs:
           ssh -i ~/.ssh/lab3_deploy \
               -o StrictHostKeyChecking=no \
               deploy@${{ secrets.TARGET_HOST }} \
-              "docker pull ghcr.io/${{ github.repository }}:${{ github.ref_name }}"
+              "docker pull ghcr.io/sofi-fi-fi/deployment-course-lab-3:${{ github.ref_name }}"
 
       - name: Update systemd unit with new tag
         run: |
