@@ -11,7 +11,7 @@ check() {
     local expected_code="$2"
     local url="$3"
 
-    actual_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$url")
+    actual_code=$(curl -s -H "Accept: text/html" -o /dev/null -w "%{http_code}" --max-time 10 "$url")
 
     if [ "$actual_code" -eq "$expected_code" ]; then
         echo "  [OK] ${description} — HTTP ${actual_code}"

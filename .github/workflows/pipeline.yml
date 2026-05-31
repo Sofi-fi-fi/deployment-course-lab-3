@@ -153,7 +153,7 @@ jobs:
           ssh -i ~/.ssh/lab3_deploy \
               -o StrictHostKeyChecking=no \
               deploy@${{ secrets.TARGET_HOST }} \
-              "sudo sed -i 's|:.*$|:${{ github.ref_name }}|' /etc/systemd/system/mywebapp.service \
+              "sudo sed -i 's|ghcr.io/sofi-fi-fi/deployment-course-lab-3:.*$|ghcr.io/sofi-fi-fi/deployment-course-lab-3:${{ github.ref_name }}|' /etc/systemd/system/mywebapp.service \
                && sudo systemctl daemon-reload \
                && sudo systemctl restart mywebapp.service"
 
